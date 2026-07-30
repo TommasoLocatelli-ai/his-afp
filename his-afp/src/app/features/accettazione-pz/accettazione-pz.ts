@@ -1,89 +1,38 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { GestioneRisorse } from '../../core/Risorse/gestione-risorse';
-import { InputText } from 'primeng/inputtext';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Message } from 'primeng/message';
-import { DatePicker } from 'primeng/datepicker';
-import { SelectModule } from 'primeng/select';
-import { Textarea } from 'primeng/textarea';
-import { Fieldset } from 'primeng/fieldset';
-import { PatientManager } from '../../core/Pazienti/patient-manager';
-import { PatientAdmission } from '../../core/Pazienti/Pazienti.model';
+import { PazienteAnagrafica } from '../../core/Pazienti/Pazienti.model';
+import { FormAccettazionePz } from './components/form-accettazione-pz/form-accettazione-pz';
+import { RicercaPaziente } from './components/ricerca-paziente/ricerca-paziente';
 
 @Component({
   selector: 'his-accettazione-pz',
-  imports: [
-    InputText,
-    ReactiveFormsModule,
-    Button,
-    Message,
-    DatePicker,
-    SelectModule,
-    Textarea,
-    Fieldset,
-  ],
+  imports: [Button, FormAccettazionePz, Message, RicercaPaziente],
   templateUrl: './accettazione-pz.html',
   styleUrl: './accettazione-pz.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AccettazionePz {
-  gestioneRisorse = inject(GestioneRisorse);
-  patientManager = inject(PatientManager);
+  readonly showForm = signal(false);
+  readonly selectedPatient = signal<PazienteAnagrafica | null>(null);
 
-  readonly maxDate = new Date();
-  readonly sexOption = [
-    {
-      code: 'M',
-      desc: 'Maschio',
-    },
-    {
-      code: 'F',
-      desc: 'Femmina',
-    },
-  ];
-
-  readonly #fb = inject(FormBuilder);
-  paziente = this.#fb.group({
-    anagrafica: this.#fb.group({
-      nome: ['', [Validators.required]],
-      cognome: ['', [Validators.required]],
-      dataNascita: ['', [Validators.required]],
-      codiceFiscale: [
-        '',
-        [Validators.required, Validators.pattern('[A-Z]{6}\\d{2}[A-Z]\\d{2}[A-Z]\\d{3}[A-Z]')],
-        // {pattern: {requiredPattern: '^[a-zA-Z ]*$', actualValue: '1'}}
-      ],
-      sesso: ['', [Validators.required]],
-    }),
-    sanitaria: this.#fb.group({
-      patologia: ['', [Validators.required]],
-      codiceColore: ['', [Validators.required]],
-      modArrivo: ['', [Validators.required]],
-      noteTriage: ['', [Validators.required, Validators.maxLength(500)]],
-    }),
-  });
-
-  checkFormControl(control: string) {
-    const fc = this.paziente.get(control);
-    // nome.invalid && (nome.touched || nome.dirty)
-    return fc?.invalid && (fc.touched || fc.dirty);
+  onPatientSelected(patient: PazienteAnagrafica): void {
+    this.selectedPatient.set(patient);
+    this.showForm.set(true);
   }
-  checkFormControlError(control: string, err: string) {
-    const fc = this.paziente.get(control);
 
-    if (fc && fc.hasError(err)) {
-      return fc.getError(err);
-    } else {
-      return null;
-    }
+  onNoPatientFound(): void {
+    this.selectedPatient.set(null);
+    this.showForm.set(false);
   }
-  onSubmit() {
-    if (this.paziente.valid) {
-      console.log(this.paziente.value);
-      this.patientManager.admitPatient(this.paziente.value as PatientAdmission);
-    } else {
-      this.paziente.markAllAsTouched();
-    }
+
+  onNewPatientRequest(): void {
+    this.selectedPatient.set(null);
+    this.showForm.set(true);
+  }
+
+  onBackToSearch(): void {
+    this.selectedPatient.set(null);
+    this.showForm.set(false);
   }
 }
