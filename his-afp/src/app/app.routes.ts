@@ -10,6 +10,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/accettazione-pz/accettazione-pz').then((m) => m.AccettazionePz),
   },
+  {
+    path: 'staff',
+    loadComponent: () => import('./features/staff-management/staff-management').then((m) => m.StaffManagement),
+  },
   // {
   //   path: 'modifica-pz',
   //   loadComponent: () => import('./features/modifica-pz/modifica-pz').then((m) => m.ModificaPz),
