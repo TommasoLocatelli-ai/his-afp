@@ -59,3 +59,37 @@ export const editUserRoleFn = catchAsync(async (req, res, next) => {
 	if (result.rowCount === 0) return next(new AppError('Operatore non trovato', 404));
 	res.status(200).json({status: 'success', data: result.rows[0]});
 });
+
+export const editUserFn = catchAsync(async (req, res, next) => {
+	const {id} = req.params;
+	const {username, role} = req.body;
+
+	if (!username || !role) {
+		return next(new AppError('Username e ruolo sono obbligatori', 400));
+	}
+
+	try {
+		const result = await pool.query(`UPDATE users
+                                     SET username = $1,
+                                         role = $2
+                                     WHERE id = $3
+                                     RETURNING id, username, role, is_active as "isActive"`, [username, role, id]);
+
+		if (result.rowCount === 0) return next(new AppError('Operatore non trovato', 404));
+		res.status(200).json({status: 'success', data: result.rows[0]});
+	} catch (error) {
+		if (error.code === '23505') {
+			return next(new AppError('Username già in uso', 409));
+		}
+		return next(error);
+	}
+});
+
+export const deleteUserFn = catchAsync(async (req, res, next) => {
+	const {id} = req.params;
+	const result = await pool.query(`DELETE FROM users
+                                     WHERE id = $1
+                                     RETURNING id`, [id]);
+	if (result.rowCount === 0) return next(new AppError('Operatore non trovato', 404));
+	res.status(200).json({status: 'success', message: 'Operatore eliminato correttamente'});
+});
