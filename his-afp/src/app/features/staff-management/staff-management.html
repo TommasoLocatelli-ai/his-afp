@@ -1,0 +1,157 @@
+<section class="flex flex-col gap-6 p-6">
+  <div class="flex flex-col gap-2">
+    <h1 class="text-3xl font-semibold">Gestione personale</h1>
+    <p class="text-sm text-slate-500">
+      Visualizza l'elenco del personale in forza e modifica i ruoli degli operatori.
+    </p>
+  </div>
+
+  <p-fieldset legend="Nuovo operatore" class="max-w-2xl">
+    <form class="flex flex-col gap-4" (ngSubmit)="onSubmitNewStaff()" [formGroup]="staffForm">
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div class="flex flex-col gap-2">
+          <label for="username">Username</label>
+          <input id="username" pInputText formControlName="username" type="text" />
+          @if (usernameControl?.invalid && (usernameControl?.touched || usernameControl?.dirty)) {
+            @if (usernameControl?.hasError('required')) {
+              <p-message severity="error" variant="simple">
+                Il campo username è obbligatorio.
+              </p-message>
+            }
+            @if (usernameControl?.hasError('minlength')) {
+              <p-message severity="error" variant="simple">
+                L'username deve contenere almeno 3 caratteri.
+              </p-message>
+            }
+            @if (usernameControl?.hasError('maxlength')) {
+              <p-message severity="error" variant="simple">
+                L'username non può superare i 30 caratteri.
+              </p-message>
+            }
+            @if (usernameControl?.hasError('usernameTaken')) {
+              <p-message severity="error" variant="simple">
+                Questo username è già in uso.
+              </p-message>
+            }
+          }
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="password">Password</label>
+          <input id="password" pInputText formControlName="password" type="password" />
+          @if (getPasswordControl()?.invalid && (getPasswordControl()?.touched || getPasswordControl()?.dirty)) {
+            @if (getPasswordControl()?.hasError('required')) {
+              <p-message severity="error" variant="simple">
+                Il campo password è obbligatorio.
+              </p-message>
+            }
+            @if (getPasswordControl()?.hasError('minlength')) {
+              <p-message severity="error" variant="simple">
+                La password deve contenere almeno 6 caratteri.
+              </p-message>
+            }
+          }
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label for="role">Ruolo</label>
+          <p-select
+            id="role"
+            [options]="roles"
+            optionLabel="label"
+            optionValue="code"
+            formControlName="role"
+          />
+          @if (getRoleControl()?.invalid && (getRoleControl()?.touched || getRoleControl()?.dirty)) {
+            <p-message severity="error" variant="simple">
+              Il ruolo è obbligatorio.
+            </p-message>
+          }
+        </div>
+      </div>
+
+      <div class="flex justify-end">
+        <p-button
+          label="Crea operatore"
+          type="button"
+          (onClick)="onSubmitNewStaff()"
+          [disabled]="staffForm.invalid"
+        />
+      </div>
+    </form>
+  </p-fieldset>
+
+  <div class="grid gap-4">
+    @for (staff of staffManager.staff(); track staff.id) {
+      <div class="border border-slate-200 rounded-lg p-4 shadow-sm">
+        <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            @if (!isRowEditing(staff)) {
+              <p class="text-xl font-semibold">{{ staff.username }}</p>
+              <p class="text-sm text-slate-600">
+                Stato: {{ staff.isActive ? 'Attivo' : 'Non attivo' }} - Ruolo attuale:
+                {{ roleLabel(staff.role) }}
+              </p>
+            } @else {
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                <div class="flex flex-col gap-2">
+                  <label for="username-{{ staff.id }}">Username</label>
+                  <input
+                    id="username-{{ staff.id }}"
+                    pInputText
+                    [ngModel]="usernameSelection[staff.id.toString()]"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="onUsernameChange(staff, $event)"
+                  />
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label for="role-{{ staff.id }}">Ruolo</label>
+                  <p-select
+                    id="role-{{ staff.id }}"
+                    [options]="roles"
+                    optionLabel="label"
+                    optionValue="code"
+                    [ngModel]="getSelectedRole(staff)"
+                    [ngModelOptions]="{ standalone: true }"
+                    (onChange)="onRoleChange(staff, $event)"
+                  />
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+            @if (!isRowEditing(staff)) {
+              <p-button
+                label="Modifica"
+                icon="pi pi-pencil"
+                severity="secondary"
+                (onClick)="startRowEdit(staff)"
+              />
+              <p-button
+                label="Elimina utente"
+                icon="pi pi-trash"
+                severity="danger"
+                (onClick)="deleteUser(staff)"
+              />
+            } @else {
+              <p-button
+                label="Salva modifica"
+                icon="pi pi-check"
+                (onClick)="saveRowEdit(staff)"
+              />
+              <p-button
+                label="Annulla"
+                icon="pi pi-times"
+                severity="secondary"
+                (onClick)="cancelRowEdit(staff)"
+              />
+            }
+          </div>
+        </div>
+      </div>
+    } @empty {
+      <p>Nessun membro dello staff presente.</p>
+    }
+  </div>
+</section>
