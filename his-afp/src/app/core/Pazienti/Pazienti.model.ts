@@ -34,6 +34,30 @@ export interface PazienteDTO {
   provincia: string;
 }
 
+export interface PazienteSearchDTO {
+  id: number;
+  nome: string;
+  cognome: string;
+  data_nascita: string;
+  codice_fiscale: string;
+  sex: string;
+}
+
+export interface PazienteAnagrafica {
+  id: number;
+  nome: string;
+  cognome: string;
+  dataNascita: string;
+  codiceFiscale: string;
+  sesso: string;
+}
+
+export interface RicercaPerAnagrafica {
+  nome: string;
+  cognome: string;
+  dataNascita: string;
+}
+
 export interface PatientAdmission {
   anagrafica: {
     nome: string;
@@ -48,7 +72,7 @@ export interface PatientAdmission {
     modArrivo: string;
     noteTriage: string;
   };
-  residenza: {
+  residenza?: {
     via: string;
     civico: string;
     comune: string;
