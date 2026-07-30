@@ -20,7 +20,9 @@ import {
 	activateUserFn,
 	checkUsernameAvailabilityFn,
 	createUserFn,
+	deleteUserFn,
 	deactivateUserFn,
+	editUserFn,
 	editUserRoleFn,
 	retrieveAllStaffFn
 } from "./services/staff.js";
@@ -80,6 +82,8 @@ app.post('/users', authenticateTokenFn, createUserFn);
 app.patch('/users/:id/deactivate', authenticateTokenFn, deactivateUserFn);
 app.patch('/users/:id/activate', authenticateTokenFn, activateUserFn);
 app.patch('/users/:id/editrole', authenticateTokenFn, editUserRoleFn);
+app.patch('/users/:id', authenticateTokenFn, editUserFn);
+app.delete('/users/:id', authenticateTokenFn, deleteUserFn);
 
 // --- ROTTA NON TROVATA ---
 app.all(/(.*)/, (req, res, next) => {
