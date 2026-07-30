@@ -1,0 +1,15 @@
+:host {
+  display: block;
+}
+
+.results-box {
+  border-top: 1px solid var(--p-surface-300);
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+}
+
+.result-item {
+  border: 1px solid var(--p-surface-300);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}

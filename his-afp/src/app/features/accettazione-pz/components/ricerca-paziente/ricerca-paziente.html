@@ -1,0 +1,136 @@
+<p-fieldset legend="Ricerca Paziente">
+  <div class="flex flex-col gap-4 p-2">
+    <div class="flex flex-row flex-wrap gap-2">
+      <p-button
+        [severity]="mode() === 'cf' ? undefined : 'secondary'"
+        (onClick)="setMode('cf')"
+        label="Ricerca per Codice Fiscale"
+        type="button"
+      />
+      <p-button
+        [severity]="mode() === 'anagrafica' ? undefined : 'secondary'"
+        (onClick)="setMode('anagrafica')"
+        label="Ricerca per Nome/Cognome/Data"
+        type="button"
+      />
+    </div>
+
+    @if (mode() === 'cf') {
+      <form [formGroup]="searchByCfForm" class="flex flex-row flex-wrap items-end gap-4">
+        <div class="flex flex-col gap-1">
+          <label for="search-cf">Codice Fiscale</label>
+          <input
+            [invalid]="searchByCfForm.controls.codiceFiscale.invalid && searchByCfForm.controls.codiceFiscale.touched"
+            class="w-2xs"
+            formControlName="codiceFiscale"
+            id="search-cf"
+            pInputText
+            type="text"
+          />
+        </div>
+        <p-button
+          (onClick)="startSearch()"
+          [loading]="isLoading()"
+          label="Cerca"
+          type="button"
+        />
+      </form>
+      @if (
+        searchByCfForm.controls.codiceFiscale.invalid &&
+        searchByCfForm.controls.codiceFiscale.touched
+      ) {
+        <p-message severity="error" variant="simple">
+          Inserire un codice fiscale valido.
+        </p-message>
+      }
+    } @else {
+      <form [formGroup]="searchByIdentityForm" class="flex flex-row flex-wrap items-end gap-4">
+        <div class="flex flex-col gap-1">
+          <label for="search-nome">Nome</label>
+          <input class="w-2xs" formControlName="nome" id="search-nome" pInputText type="text" />
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="search-cognome">Cognome</label>
+          <input
+            class="w-2xs"
+            formControlName="cognome"
+            id="search-cognome"
+            pInputText
+            type="text"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1">
+          <label for="search-data-nascita">Data di nascita</label>
+          <p-datePicker
+            [maxDate]="maxDate"
+            class="w-2xs"
+            dateFormat="dd/mm/yy"
+            formControlName="dataNascita"
+            id="search-data-nascita"
+            placeholder="dd/mm/yyyy"
+          />
+        </div>
+
+        <p-button
+          (onClick)="startSearch()"
+          [loading]="isLoading()"
+          label="Cerca"
+          type="button"
+        />
+      </form>
+      @if (
+        searchByIdentityForm.invalid &&
+        (searchByIdentityForm.controls.nome.touched ||
+          searchByIdentityForm.controls.cognome.touched ||
+          searchByIdentityForm.controls.dataNascita.touched)
+      ) {
+        <p-message severity="error" variant="simple">
+          Nome, cognome e data di nascita sono obbligatori.
+        </p-message>
+      }
+    }
+
+    <div class="pt-2">
+      <p-button
+        (onClick)="requestNewPatient()"
+        label="Nuovo Paziente"
+        severity="warn"
+        type="button"
+        variant="outlined"
+      />
+    </div>
+
+    @if (errorMessage()) {
+      <p-message severity="error" variant="simple">{{ errorMessage() }}</p-message>
+    }
+
+    @if (searchPerformed() && searchResults().length === 0 && !errorMessage()) {
+      <p-message severity="info" variant="simple">
+        Nessun paziente trovato. Procedere con inserimento nuovo paziente.
+      </p-message>
+    }
+
+    @if (searchResults().length > 0) {
+      <div class="flex flex-col gap-2 results-box">
+        <h4>Risultati ricerca</h4>
+        @for (patient of searchResults(); track patient.id) {
+          <div class="result-item flex flex-row flex-wrap items-center justify-between gap-3">
+            <div>
+              <strong>{{ patient.cognome }} {{ patient.nome }}</strong>
+              <div>CF: {{ patient.codiceFiscale }}</div>
+              <div>Data nascita: {{ patient.dataNascita | date: 'dd/MM/yyyy' }}</div>
+            </div>
+            <p-button
+              (onClick)="selectPatient(patient)"
+              label="Seleziona"
+              size="small"
+              type="button"
+            />
+          </div>
+        }
+      </div>
+    }
+  </div>
+</p-fieldset>
