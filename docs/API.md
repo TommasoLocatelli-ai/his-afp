@@ -1,7 +1,8 @@
 # 📘 SIO Backend - API Reference Manual
 
 - **Versione:** 1.0.2
-- **Base URL:** `http://localhost:3000`
+- **Base URL pubblica:** `http://localhost/api`
+- **Base URL interna container-to-container:** `http://backend:3000`
 - **Protocollo:** HTTP/1.1 REST
 - **Encoding:** JSON (`application/json`)
 

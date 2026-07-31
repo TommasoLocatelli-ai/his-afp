@@ -72,7 +72,7 @@ his-afp
 3. Spostarsi nella cartella del progetto: `cd his-afp`
 4. Creare un nuovo branch per le modifiche: `git checkout -b uf15-2026/nome-cognome`
 5. Avviare i container Docker: `docker-compose up -d --build`
-6. Accedere al backend API su `http://localhost:3000`
+6. Accedere all'applicazione tramite il gateway su `http://localhost`
 
 # Avvio dei servizi
 
@@ -98,10 +98,23 @@ Per ricompilare un singolo servizio (es. backend), eseguire:
 docker-compose up -d --build --no-deps backend
 ```
 
+## Nota architetturale UF14
+
+L'infrastruttura e stata segmentata in una topologia multi-tier:
+
+- `frontend-net`: contiene esclusivamente `fe-prod`, `fe-test` e `fe-sio`
+- `backend-net`: contiene esclusivamente `backend` e `db`
+- `gateway`: unico servizio collegato ad entrambe le reti e unico punto di ingresso dall'host
+
+Di conseguenza, i test applicativi e infrastrutturali vanno eseguiti passando dal gateway.
+
 # Accessi
 
-- **Backend API:** `http://localhost:3000`
-- **Database PostgreSQL:** `localhost:5432` (user: `sio_user`, password: `sio_password`, database: `sio_db`)
+- **Produzione:** `http://localhost`
+- **Test:** `http://localhost:8080`
+- **Sviluppo / SVI:** `http://localhost:8999`
+
+Backend e database non espongono piu porte verso l'host: le API sono raggiungibili solo tramite il gateway agli endpoint `/api/...`.
 
 # Test delle API
 
@@ -116,6 +129,7 @@ Allinterno della cartella `docs/` sono presenti documenti dettagliati riguardant
 
 - Documentazione delle API: [docs/API.md](docs/API.md)
 - Struttura del Database: [docs/DATABASE.md](docs/DATABASE.md)
+- Migrazione infrastrutturale UF14 Task 1: [docs/UF14_TASK1_MIGRAZIONE.md](docs/UF14_TASK1_MIGRAZIONE.md)
 
 # Contribuire
 
