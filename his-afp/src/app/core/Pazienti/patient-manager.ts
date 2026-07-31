@@ -1,9 +1,18 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { PatientAdmission, PatientAdmissionRes, Paziente, PazienteDTO } from './Pazienti.model';
+import {
+  PatientAdmission,
+  PatientAdmissionRes,
+  Paziente,
+  PazienteAnagrafica,
+  PazienteDTO,
+  PazienteSearchDTO,
+  RicercaPerAnagrafica,
+} from './Pazienti.model';
 import { HttpClient } from '@angular/common/http';
 import { APIResponse } from '../models/APIResponse.model';
 import { environment } from '../../../environments/environment';
 import { Router } from '@angular/router';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -104,5 +113,39 @@ export class PatientManager {
       return fullName.includes(name.toLowerCase());
     });
     this.#listaPZFiltered.set(filtered);
+  }
+
+  public searchByCodiceFiscale(codiceFiscale: string): Observable<PazienteAnagrafica[]> {
+    const normalizedCf = codiceFiscale.trim().toUpperCase();
+
+    return this.#http
+      .get<APIResponse<PazienteSearchDTO[]>>(`/api/patients/search?cf=${encodeURIComponent(normalizedCf)}`)
+      .pipe(map((res) => res.data.map((pz) => this.mapSearchDTOToAnagrafica(pz))));
+  }
+
+  public searchByAnagrafica(params: RicercaPerAnagrafica): Observable<PazienteAnagrafica[]> {
+    const normalizedNome = params.nome.trim();
+    const normalizedCognome = params.cognome.trim();
+    const normalizedDataNascita = params.dataNascita.trim();
+
+    const queryString =
+      `nome=${encodeURIComponent(normalizedNome)}` +
+      `&cognome=${encodeURIComponent(normalizedCognome)}` +
+      `&data_nascita=${encodeURIComponent(normalizedDataNascita)}`;
+
+    return this.#http
+      .get<APIResponse<PazienteSearchDTO[]>>(`/api/patients/search?${queryString}`)
+      .pipe(map((res) => res.data.map((pz) => this.mapSearchDTOToAnagrafica(pz))));
+  }
+
+  private mapSearchDTOToAnagrafica(pz: PazienteSearchDTO): PazienteAnagrafica {
+    return {
+      id: pz.id,
+      nome: pz.nome,
+      cognome: pz.cognome,
+      dataNascita: pz.data_nascita,
+      codiceFiscale: pz.codice_fiscale,
+      sesso: pz.sex,
+    };
   }
 }
