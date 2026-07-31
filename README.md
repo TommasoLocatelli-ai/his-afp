@@ -27,6 +27,7 @@ Il progetto è suddiviso in due aree di competenza tecnica:
     * Creazione di Dockerfile, configurazione di Docker Compose e NGINX per il deploy dell'applicazione.
     * Impostazione del monitoraggio e logging dei container.
     * Test e documentazione del sistema.
+  * Documentazione della migrazione blue/green del backend e procedura di rollback.
 
 # Struttura del Progetto
 
@@ -53,6 +54,7 @@ his-afp
 ├── docker-compose.yml
 ├── docs
 │   ├── API.md
+│   ├── BLUE_GREEN_MIGRATION.md
 │   └── DATABASE.md
 ├── LICENSE
 └── README.md
@@ -116,6 +118,7 @@ Allinterno della cartella `docs/` sono presenti documenti dettagliati riguardant
 
 - Documentazione delle API: [docs/API.md](docs/API.md)
 - Struttura del Database: [docs/DATABASE.md](docs/DATABASE.md)
+  - Migrazione blue/green del backend: [docs/BLUE_GREEN_MIGRATION.md](docs/BLUE_GREEN_MIGRATION.md)
 
 # Contribuire
 
